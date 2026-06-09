@@ -13,6 +13,7 @@ from app.modules.admin.repositories.news_admin_repository import (
     create_news,
     get_all_news,
     get_news_by_id,
+    get_news_by_title,
     publish_news,
     delete_news
 )
@@ -34,6 +35,22 @@ async def create_news_service(
     data,
     admin_id: int
 ):
+
+    existing_news = await get_news_by_title(
+        db,
+        data.title
+    )
+
+    if (
+        existing_news and
+        existing_news.content.strip().lower()
+        == data.content.strip().lower()
+    ):
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="News already exists"
+        )
 
     news_data = data.dict()
 

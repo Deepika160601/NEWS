@@ -26,6 +26,23 @@ async def create_news(
 
 
 # =========================
+# GET NEWS BY TITLE
+# =========================
+async def get_news_by_title(
+    db: AsyncSession,
+    title: str
+):
+
+    result = await db.execute(
+        select(News).where(
+            News.title == title
+        )
+    )
+
+    return result.scalar_one_or_none()
+
+
+# =========================
 # GET NEWS BY ID
 # =========================
 async def get_news_by_id(
