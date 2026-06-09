@@ -1,7 +1,6 @@
 from fastapi import (
     APIRouter,
-    Depends,
-    HTTPException
+    Depends
 )
 
 from sqlalchemy.ext.asyncio import (
@@ -18,11 +17,11 @@ from app.modules.admin.schemas.poll_admin_schema import (
     PollCreateRequest
 )
 
-from app.modules.admin.repositories.poll_admin_repository import (
-    create_poll,
-    get_poll_by_id,
-    get_all_polls,
-    delete_poll
+from app.modules.admin.services.poll_admin_service import (
+    create_poll_service,
+    get_all_polls_service,
+    get_poll_by_id_service,
+    delete_poll_service
 )
 
 router = APIRouter(
@@ -41,14 +40,7 @@ async def add_poll(
     db: AsyncSession = Depends(get_db)
 ):
 
-    if len(data.options) < 2:
-
-        raise HTTPException(
-            status_code=400,
-            detail="At least 2 options required"
-        )
-
-    return await create_poll(
+    return await create_poll_service(
         db,
         data
     )
@@ -62,7 +54,7 @@ async def list_polls(
     db: AsyncSession = Depends(get_db)
 ):
 
-    return await get_all_polls(
+    return await get_all_polls_service(
         db
     )
 
@@ -76,19 +68,10 @@ async def get_poll(
     db: AsyncSession = Depends(get_db)
 ):
 
-    poll = await get_poll_by_id(
+    return await get_poll_by_id_service(
         db,
         poll_id
     )
-
-    if not poll:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Poll not found"
-        )
-
-    return poll
 
 
 # =========================
@@ -100,23 +83,7 @@ async def remove_poll(
     db: AsyncSession = Depends(get_db)
 ):
 
-    poll = await get_poll_by_id(
+    return await delete_poll_service(
         db,
         poll_id
     )
-
-    if not poll:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Poll not found"
-        )
-
-    await delete_poll(
-        db,
-        poll
-    )
-
-    return {
-        "message": "Poll deleted successfully"
-    }

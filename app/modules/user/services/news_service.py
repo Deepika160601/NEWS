@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
 
+from app.utils.api_response import success_response
+
 from app.modules.user.repositories.news_repository import (
     get_latest_news,
     get_news_by_id
@@ -31,7 +33,10 @@ async def get_latest_news_service(
             detail="No news found"
         )
 
-    return news
+    return success_response(
+        "News fetched successfully",
+        news
+    )
 
 
 # =========================
@@ -54,4 +59,7 @@ async def get_news_by_id_service(
             detail="News not found"
         )
 
-    return news
+    return success_response(
+        "News details fetched successfully",
+        news
+    )

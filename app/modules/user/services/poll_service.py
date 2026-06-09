@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
 
+from app.utils.api_response import success_response
+
 from app.modules.user.repositories.poll_repository import (
     get_all_polls,
     get_poll_by_id,
@@ -26,7 +28,10 @@ async def get_all_polls_service(
         db
     )
 
-    return polls
+    return success_response(
+        "Polls fetched successfully",
+        polls
+    )
 
 
 # =========================
@@ -49,7 +54,10 @@ async def get_poll_by_id_service(
             detail="Poll not found"
         )
 
-    return poll
+    return success_response(
+        "Poll fetched successfully",
+        poll
+    )
 
 
 # =========================
@@ -87,9 +95,14 @@ async def vote_poll_service(
             detail="You have already voted"
         )
 
-    return await vote_poll(
+    vote = await vote_poll(
         db,
         poll_id,
         option_id,
         user_id
+    )
+
+    return success_response(
+        "Vote submitted successfully",
+        vote
     )

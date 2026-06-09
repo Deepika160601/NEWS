@@ -9,6 +9,8 @@ from app.core.security import (
     create_access_token
 )
 
+from app.utils.api_response import success_response
+
 from app.modules.user.repositories.user_repository import (
     UserRepository
 )
@@ -46,9 +48,14 @@ class UserService:
             password_hash=hash_password(password)
         )
 
-        return await UserRepository.create_user(
+        created_user = await UserRepository.create_user(
             db,
             user
+        )
+
+        return success_response(
+            "User registered successfully",
+            created_user
         )
 
     # =========================
@@ -89,10 +96,13 @@ class UserService:
             }
         )
 
-        return {
-            "access_token": access_token,
-            "token_type": "bearer"
-        }
+        return success_response(
+            "Login successful",
+            {
+                "access_token": access_token,
+                "token_type": "bearer"
+            }
+        )
 
     # =========================
     # GET PROFILE
@@ -114,7 +124,10 @@ class UserService:
                 detail="User not found"
             )
 
-        return user
+        return success_response(
+            "Profile fetched successfully",
+            user
+        )
 
     # =========================
     # UPDATE LANGUAGE
@@ -142,7 +155,9 @@ class UserService:
         await db.commit()
         await db.refresh(user)
 
-        return {
-            "message": "Language updated successfully",
-            "preferred_language": user.preferred_language
-        }
+        return success_response(
+            "Language updated successfully",
+            {
+                "preferred_language": user.preferred_language
+            }
+        )

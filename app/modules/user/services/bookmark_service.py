@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
 
+from app.utils.api_response import success_response
+
 from app.modules.user.repositories.bookmark_repository import (
     add_bookmark,
     get_user_bookmarks,
@@ -14,9 +16,9 @@ from app.modules.user.repositories.bookmark_repository import (
 )
 
 
-# =========================
+# ================
 # ADD BOOKMARK
-# =========================
+# ================
 async def add_bookmark_service(
     db: AsyncSession,
     user_id: int,
@@ -29,9 +31,9 @@ async def add_bookmark_service(
         news_id
     )
 
-    return {
-        "message": "News bookmarked successfully"
-    }
+    return success_response(
+        "News bookmarked successfully"
+    )
 
 
 # =========================
@@ -42,9 +44,14 @@ async def get_user_bookmarks_service(
     user_id: int
 ):
 
-    return await get_user_bookmarks(
+    bookmarks = await get_user_bookmarks(
         db,
         user_id
+    )
+
+    return success_response(
+        "Bookmarks fetched successfully",
+        bookmarks
     )
 
 
@@ -70,6 +77,6 @@ async def remove_bookmark_service(
             detail="Bookmark not found"
         )
 
-    return {
-        "message": "Bookmark removed successfully"
-    }
+    return success_response(
+        "Bookmark removed successfully"
+    )

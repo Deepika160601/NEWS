@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import (
 
 from app.db.db import get_db
 
+
 from app.modules.user.services.news_service import (
     get_latest_news_service,
     get_news_by_id_service

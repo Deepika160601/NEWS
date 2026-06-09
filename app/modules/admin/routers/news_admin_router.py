@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import (
 
 from app.db.db import get_db
 
+
 from app.core.security import (
     get_current_admin
 )
@@ -55,7 +56,8 @@ async def add_news(
         category_id=category_id,
         location_id=location_id,
         is_breaking=is_breaking,
-        thumbnail_url=thumbnail_url
+        thumbnail_url=thumbnail_url,
+        video_url=video_url
     )
 
     return await create_news_service(

@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi import HTTPException, Request
+from fastapi.responses import JSONResponse
 
 from app.db.db import (
     engine,
@@ -46,7 +48,22 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
-
+# ========================
+# GLOBAL HTTP EXCEPTION HANDLER
+# ========================
+@app.exception_handler(HTTPException)
+async def http_exception_handler(
+    request: Request,
+    exc: HTTPException
+):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False,
+            "message": exc.detail,
+            "data": None
+        }
+    )
 
 # ========================
 # ADMIN ROUTERS

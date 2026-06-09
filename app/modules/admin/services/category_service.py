@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
 
+from app.utils.api_response import success_response
+
 from app.modules.admin.repositories.category_repository import (
     create_category,
     get_category_by_name,
@@ -36,10 +38,15 @@ async def create_category_service(
             detail="Category already exists"
         )
 
-    return await create_category(
+    category = await create_category(
         db,
         data.name,
         data.description
+    )
+
+    return success_response(
+        "Category created successfully",
+        category
     )
 
 
@@ -50,8 +57,13 @@ async def get_all_categories_service(
     db: AsyncSession
 ):
 
-    return await get_all_categories(
+    categories = await get_all_categories(
         db
+    )
+
+    return success_response(
+        "Categories fetched successfully",
+        categories
     )
 
 
@@ -80,7 +92,6 @@ async def delete_category_service(
         category
     )
 
-    return {
-        "message":
+    return success_response(
         "Category deleted successfully"
-    }
+    )

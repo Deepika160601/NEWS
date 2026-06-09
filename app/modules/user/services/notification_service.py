@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
 
+from app.utils.api_response import success_response
+
 from app.modules.user.repositories.notification_repository import (
     get_user_notifications,
     get_notification_by_id,
@@ -28,7 +30,10 @@ async def get_user_notifications_service(
         user_id
     )
 
-    return notifications
+    return success_response(
+        "Notifications fetched successfully",
+        notifications
+    )
 
 
 # =========================
@@ -44,7 +49,10 @@ async def get_unread_notifications_service(
         user_id
     )
 
-    return notifications
+    return success_response(
+        "Unread notifications fetched successfully",
+        notifications
+    )
 
 
 # =========================
@@ -67,7 +75,12 @@ async def mark_notification_as_read_service(
             detail="Notification not found"
         )
 
-    return await mark_as_read(
+    updated_notification = await mark_as_read(
         db,
         notification
+    )
+
+    return success_response(
+        "Notification marked as read",
+        updated_notification
     )

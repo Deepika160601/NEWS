@@ -11,6 +11,8 @@ from sqlalchemy import select
 
 from app.models.models import News
 
+from app.utils.api_response import success_response
+
 from app.modules.user.repositories.like_repository import (
     like_news,
     unlike_news
@@ -54,10 +56,12 @@ async def like_news_service(
 
     news = result.scalar_one_or_none()
 
-    return {
-        "message": "News liked successfully",
-        "like_count": news.like_count
-    }
+    return success_response(
+        "News liked successfully",
+        {
+            "like_count": news.like_count
+        }
+    )
 
 
 # =========================
@@ -90,7 +94,9 @@ async def unlike_news_service(
 
     news = result.scalar_one_or_none()
 
-    return {
-        "message": "News unliked successfully",
-        "like_count": news.like_count
-    }
+    return success_response(
+        "News unliked successfully",
+        {
+            "like_count": news.like_count
+        }
+    )

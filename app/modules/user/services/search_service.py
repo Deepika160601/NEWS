@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
 
+from app.utils.api_response import success_response
+
 from app.modules.user.repositories.search_repository import (
     search_news
 )
@@ -39,4 +41,7 @@ async def search_news_service(
             detail="No news found"
         )
 
-    return news
+    return success_response(
+        "Search results fetched successfully",
+        news
+    )

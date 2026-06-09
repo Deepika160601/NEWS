@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
 
+from app.utils.api_response import success_response
+
 from app.modules.user.repositories.comment_repository import (
     add_comment,
     get_comments_by_news
@@ -29,10 +31,15 @@ async def add_comment_service(
             detail="Comment cannot be empty"
         )
 
-    return await add_comment(
+    comment = await add_comment(
         db,
         data,
         user_id
+    )
+
+    return success_response(
+        "Comment added successfully",
+        comment
     )
 
 
@@ -56,4 +63,7 @@ async def get_comments_service(
             detail="No comments found"
         )
 
-    return comments
+    return success_response(
+        "Comments fetched successfully",
+        comments
+    )

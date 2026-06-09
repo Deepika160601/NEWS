@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
 
+from app.utils.api_response import success_response
+
 from app.modules.admin.repositories.news_admin_repository import (
     create_news,
     get_all_news,
@@ -37,9 +39,14 @@ async def create_news_service(
 
     news_data["author_id"] = admin_id
 
-    return await create_news(
+    news = await create_news(
         db,
         news_data
+    )
+
+    return success_response(
+        "News created successfully",
+        news
     )
 
 
@@ -50,8 +57,13 @@ async def get_all_news_service(
     db: AsyncSession
 ):
 
-    return await get_all_news(
+    news_list = await get_all_news(
         db
+    )
+
+    return success_response(
+        "News fetched successfully",
+        news_list
     )
 
 
@@ -75,7 +87,10 @@ async def get_news_by_id_service(
             detail="News not found"
         )
 
-    return news
+    return success_response(
+        "News fetched successfully",
+        news
+    )
 
 
 # =========================
@@ -117,7 +132,10 @@ async def publish_news_service(
             message=published_news.title
         )
 
-    return published_news
+    return success_response(
+        "News published successfully",
+        published_news
+    )
 
 
 # =========================
@@ -145,6 +163,6 @@ async def delete_news_service(
         news
     )
 
-    return {
-        "message": "News deleted successfully"
-    }
+    return success_response(
+        "News deleted successfully"
+    )
