@@ -24,6 +24,23 @@ class UserRepository:
         return result.scalar_one_or_none()
 
     # =========================
+    # GET BY MOBILE NUMBER
+    # =========================
+    @staticmethod
+    async def get_user_by_mobile_number(
+        db: AsyncSession,
+        mobile_number: str
+    ):
+
+        result = await db.execute(
+            select(User).where(
+                User.mobile_number == mobile_number
+            )
+        )
+
+        return result.scalar_one_or_none()
+
+    # =========================
     # GET BY ID
     # =========================
     @staticmethod

@@ -1,4 +1,9 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    field_validator
+)
+
 from typing import Literal
 
 
@@ -10,6 +15,27 @@ class UserRegisterRequest(BaseModel):
     email: EmailStr
     mobile_number: str
     password: str
+
+    @field_validator("mobile_number")
+    @classmethod
+    def validate_mobile_number(
+        cls,
+        value: str
+    ):
+
+        if not value.isdigit():
+
+            raise ValueError(
+                "Mobile number must contain only digits"
+            )
+
+        if len(value) != 10:
+
+            raise ValueError(
+                "Mobile number must be exactly 10 digits"
+            )
+
+        return value
 
 
 # =========================

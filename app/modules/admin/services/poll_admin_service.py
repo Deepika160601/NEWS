@@ -7,12 +7,17 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
 
+from sqlalchemy import select
+
+from app.models.models import News
+
 from app.utils.api_response import success_response
 
 from app.modules.admin.repositories.poll_admin_repository import (
     create_poll,
     get_all_polls,
     get_poll_by_id,
+    get_poll_by_news_id,
     delete_poll
 )
 
@@ -30,6 +35,33 @@ async def create_poll_service(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="At least 2 options required"
+        )
+
+    result = await db.execute(
+        select(News).where(
+            News.news_id == data.news_id
+        )
+    )
+
+    news = result.scalar_one_or_none()
+
+    if not news:
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="News not found"
+        )
+
+    existing_poll = await get_poll_by_news_id(
+        db,
+        data.news_id
+    )
+
+    if existing_poll:
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Poll already exists for this news"
         )
 
     poll = await create_poll(
@@ -112,5 +144,8 @@ async def delete_poll_service(
     )
 
     return success_response(
-        "Poll deleted successfully"
+        "Poll deleted successfully",
+        {
+            "poll_id": poll_id
+        }
     )

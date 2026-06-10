@@ -26,7 +26,7 @@ async def like_news(
     existing = result.scalar_one_or_none()
 
     if existing:
-        return existing
+        return "already_liked"
 
     like = Like(
         user_id=user_id,

@@ -93,5 +93,8 @@ async def delete_category_service(
     )
 
     return success_response(
-        "Category deleted successfully"
+        "Category deleted successfully",
+        {
+            "category_id": category_id
+        }
     )

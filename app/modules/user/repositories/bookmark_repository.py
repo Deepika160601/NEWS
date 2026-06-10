@@ -1,7 +1,10 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.models import Bookmark
+from app.models.models import (
+    Bookmark,
+    News
+)
 
 
 # =========================
@@ -23,7 +26,7 @@ async def add_bookmark(
     existing = result.scalar_one_or_none()
 
     if existing:
-        return existing
+        return "already_bookmarked"
 
     bookmark = Bookmark(
         user_id=user_id,
@@ -48,12 +51,36 @@ async def get_user_bookmarks(
 ):
 
     result = await db.execute(
-        select(Bookmark).where(
+        select(
+            Bookmark.bookmark_id,
+            Bookmark.news_id,
+            Bookmark.created_at,
+            News.title,
+            News.summary,
+            News.thumbnail_url
+        )
+        .join(
+            News,
+            Bookmark.news_id == News.news_id
+        )
+        .where(
             Bookmark.user_id == user_id
         )
     )
 
-    return result.scalars().all()
+    rows = result.all()
+
+    return [
+        {
+            "bookmark_id": row.bookmark_id,
+            "news_id": row.news_id,
+            "title": row.title,
+            "summary": row.summary,
+            "thumbnail_url": row.thumbnail_url,
+            "created_at": row.created_at
+        }
+        for row in rows
+    ]
 
 
 # =========================

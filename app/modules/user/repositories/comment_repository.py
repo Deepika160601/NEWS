@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models.models import Comment
 
@@ -38,9 +39,27 @@ async def get_comments_by_news(
 ):
 
     result = await db.execute(
-        select(Comment).where(
+        select(Comment)
+        .options(selectinload(Comment.user))
+        .where(
             Comment.news_id == news_id
+        )
+        .order_by(
+            Comment.created_at.desc()
         )
     )
 
-    return result.scalars().all()
+    comments = result.scalars().all()
+
+    return [
+        {
+            "comment_id": comment.comment_id,
+            "user_id": comment.user_id,
+            "user_name": comment.user.name if comment.user else None,
+            "news_id": comment.news_id,
+            "content": comment.content,
+            "parent_comment_id": comment.parent_comment_id,
+            "created_at": comment.created_at
+        }
+        for comment in comments
+    ]

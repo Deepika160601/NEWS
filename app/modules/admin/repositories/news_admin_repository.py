@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import News
-
+from datetime import datetime
 
 # =========================
 # CREATE NEWS
@@ -73,7 +73,6 @@ async def get_all_news(
     return result.scalars().all()
 
 
-# =========================
 # PUBLISH NEWS
 # =========================
 async def publish_news(
@@ -82,6 +81,7 @@ async def publish_news(
 ):
 
     news.status = "published"
+    news.published_at = datetime.utcnow()
 
     await db.commit()
 

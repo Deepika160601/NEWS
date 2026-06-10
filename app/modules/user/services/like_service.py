@@ -29,24 +29,28 @@ async def like_news_service(
 ):
 
     if user_id <= 0:
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid user id"
         )
 
     if news_id <= 0:
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid news id"
         )
 
-    await like_news(
+    like = await like_news(
         db,
         user_id,
         news_id
     )
+
+    if like == "already_liked":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You have already liked this news"
+        )
 
     result = await db.execute(
         select(News).where(
@@ -59,6 +63,7 @@ async def like_news_service(
     return success_response(
         "News liked successfully",
         {
+            "news_id": news_id,
             "like_count": news.like_count
         }
     )
@@ -80,7 +85,6 @@ async def unlike_news_service(
     )
 
     if not like:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Like not found"
@@ -97,6 +101,7 @@ async def unlike_news_service(
     return success_response(
         "News unliked successfully",
         {
+            "news_id": news_id,
             "like_count": news.like_count
         }
     )

@@ -19,10 +19,31 @@ async def get_all_polls(
         select(Poll)
     )
 
-    return result.scalars().all()
+    polls = result.scalars().all()
+
+    response = []
+
+    for poll in polls:
+
+        total_votes = sum(
+            option.votes_count
+            for option in poll.options
+        )
+
+        response.append(
+            {
+                "poll_id": poll.poll_id,
+                "news_id": poll.news_id,
+                "question": poll.question,
+                "total_votes": total_votes,
+                "created_at": poll.created_at
+            }
+        )
+
+    return response
 
 
-# =========================
+## =========================
 # GET POLL BY ID
 # =========================
 async def get_poll_by_id(
@@ -36,7 +57,33 @@ async def get_poll_by_id(
         )
     )
 
-    return result.scalar_one_or_none()
+    poll = result.scalar_one_or_none()
+
+    if not poll:
+        return None
+
+    options_result = await db.execute(
+        select(PollOption).where(
+            PollOption.poll_id == poll_id
+        )
+    )
+
+    options = options_result.scalars().all()
+
+    return {
+        "poll_id": poll.poll_id,
+        "news_id": poll.news_id,
+        "question": poll.question,
+        "created_at": poll.created_at,
+        "options": [
+            {
+                "option_id": option.option_id,
+                "option_text": option.option_text,
+                "votes_count": option.votes_count
+            }
+            for option in options
+        ]
+    }
 
 
 # =========================
@@ -92,3 +139,25 @@ async def vote_poll(
     await db.refresh(vote)
 
     return vote
+# =========================
+# GET ALL POLLS
+# =========================
+async def get_all_polls(
+    db: AsyncSession
+):
+
+    result = await db.execute(
+        select(Poll)
+    )
+
+    polls = result.scalars().all()
+
+    return [
+        {
+            "poll_id": poll.poll_id,
+            "news_id": poll.news_id,
+            "question": poll.question,
+            "created_at": poll.created_at
+        }
+        for poll in polls
+    ]

@@ -43,6 +43,23 @@ async def create_poll(
 
 
 # =========================
+# GET POLL BY NEWS ID
+# =========================
+async def get_poll_by_news_id(
+    db: AsyncSession,
+    news_id: int
+):
+
+    result = await db.execute(
+        select(Poll).where(
+            Poll.news_id == news_id
+        )
+    )
+
+    return result.scalars().first()
+
+
+# =========================
 # GET POLL BY ID
 # =========================
 async def get_poll_by_id(
@@ -56,8 +73,33 @@ async def get_poll_by_id(
         )
     )
 
-    return result.scalar_one_or_none()
+    poll = result.scalar_one_or_none()
 
+    if not poll:
+        return None
+
+    result = await db.execute(
+        select(PollOption).where(
+            PollOption.poll_id == poll_id
+        )
+    )
+
+    options = result.scalars().all()
+
+    return {
+        "poll_id": poll.poll_id,
+        "news_id": poll.news_id,
+        "question": poll.question,
+        "options": [
+            {
+                "option_id": option.option_id,
+                "option_text": option.option_text,
+                "votes_count": option.votes_count
+            }
+            for option in options
+        ],
+        "created_at": poll.created_at
+    }
 
 # =========================
 # GET ALL POLLS
@@ -70,7 +112,17 @@ async def get_all_polls(
         select(Poll)
     )
 
-    return result.scalars().all()
+    polls = result.scalars().all()
+
+    return [
+        {
+            "poll_id": poll.poll_id,
+            "news_id": poll.news_id,
+            "question": poll.question,
+            "created_at": poll.created_at
+        }
+        for poll in polls
+    ]
 
 
 # =========================
@@ -81,6 +133,16 @@ async def delete_poll(
     poll: Poll
 ):
 
-    await db.delete(poll)
+    result = await db.execute(
+        select(Poll).where(
+            Poll.poll_id == poll["poll_id"]
+        )
+    )
 
-    await db.commit()
+    poll_obj = result.scalar_one_or_none()
+
+    if poll_obj:
+
+        await db.delete(poll_obj)
+
+        await db.commit()

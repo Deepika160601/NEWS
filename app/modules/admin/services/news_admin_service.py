@@ -153,8 +153,6 @@ async def publish_news_service(
         "News published successfully",
         published_news
     )
-
-
 # =========================
 # DELETE NEWS
 # =========================
@@ -181,5 +179,8 @@ async def delete_news_service(
     )
 
     return success_response(
-        "News deleted successfully"
+        "News deleted successfully",
+        {
+            "news_id": news_id
+        }
     )

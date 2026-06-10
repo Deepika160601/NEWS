@@ -41,6 +41,17 @@ class UserService:
                 detail="Email already registered"
             )
 
+        existing_mobile = await UserRepository.get_user_by_mobile_number(
+            db,
+            mobile_number
+        )
+
+        if existing_mobile:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Mobile number already registered"
+            )
+
         user = User(
             name=name,
             email=email,
@@ -55,7 +66,14 @@ class UserService:
 
         return success_response(
             "User registered successfully",
-            created_user
+            {
+                "user_id": created_user.user_id,
+                "name": created_user.name,
+                "email": created_user.email,
+                "mobile_number": created_user.mobile_number,
+                "preferred_language": created_user.preferred_language,
+                "created_at": created_user.created_at
+            }
         )
 
     # =========================
@@ -126,7 +144,14 @@ class UserService:
 
         return success_response(
             "Profile fetched successfully",
-            user
+            {
+                "user_id": user.user_id,
+                "name": user.name,
+                "email": user.email,
+                "mobile_number": user.mobile_number,
+                "preferred_language": user.preferred_language,
+                "created_at": user.created_at
+            }
         )
 
     # =========================

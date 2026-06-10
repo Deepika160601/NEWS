@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import (
 
 from app.db.db import get_db
 
-
 from app.core.security import (
     get_current_user
 )
@@ -17,8 +16,7 @@ from app.core.security import (
 from app.modules.user.schemas.user_schema import (
     UserRegisterRequest,
     UserLoginRequest,
-    LanguageUpdateRequest,
-    UserResponse
+    LanguageUpdateRequest
 )
 
 from app.modules.user.services.user_service import (
@@ -31,10 +29,7 @@ router = APIRouter()
 # =========================
 # REGISTER USER
 # =========================
-@router.post(
-    "/register",
-    response_model=UserResponse
-)
+@router.post("/register")
 async def register_user(
     request: UserRegisterRequest,
     db: AsyncSession = Depends(get_db)
@@ -63,6 +58,8 @@ async def login_user(
         email=request.email,
         password=request.password
     )
+
+
 # =========================
 # UPDATE LANGUAGE
 # =========================
@@ -70,9 +67,7 @@ async def login_user(
 async def update_language(
     request: LanguageUpdateRequest,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(
-        get_current_user
-    )
+    current_user=Depends(get_current_user)
 ):
 
     return await UserService.update_language(
