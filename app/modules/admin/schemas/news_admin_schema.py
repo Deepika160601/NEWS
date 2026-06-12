@@ -2,6 +2,10 @@ from pydantic import BaseModel
 from typing import Optional
 
 
+from pydantic import BaseModel
+from typing import Optional
+
+
 # =========================
 # CREATE NEWS REQUEST
 # =========================
@@ -13,9 +17,21 @@ class NewsCreateRequest(BaseModel):
 
     summary: Optional[str] = None
 
+    original_language: str = "en"
+
     category_id: int
 
-    location_id: int
+    news_type: str
+
+    state: Optional[str] = None
+
+    district: Optional[str] = None
+
+    mandal: Optional[str] = None
+
+    city: Optional[str] = None
+
+    village: Optional[str] = None
 
     is_breaking: bool = False
 
@@ -39,7 +55,17 @@ class NewsResponse(BaseModel):
 
     category_id: int
 
-    location_id: int
+    news_type: str
+
+    state: Optional[str]
+
+    district: Optional[str]
+
+    mandal: Optional[str]
+
+    city: Optional[str]
+
+    village: Optional[str]
 
     author_id: int
 
@@ -61,6 +87,22 @@ class NewsResponse(BaseModel):
         from_attributes = True
 
 
+# =========================
+# APPROVE NEWS REQUEST
+# =========================
+class ApproveNewsRequest(BaseModel):
+
+    admin_id: int
+
+
+# =========================
+# REJECT NEWS REQUEST
+# =========================
+class RejectNewsRequest(BaseModel):
+
+    admin_id: int
+
+    rejection_reason: str
 # =========================
 # APPROVE NEWS REQUEST
 # =========================

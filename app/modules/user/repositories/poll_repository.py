@@ -115,6 +115,18 @@ async def vote_poll(
     user_id: int
 ):
 
+    result = await db.execute(
+        select(PollOption).where(
+            PollOption.option_id == option_id,
+            PollOption.poll_id == poll_id
+        )
+    )
+
+    option = result.scalar_one_or_none()
+
+    if not option:
+        return None
+
     vote = PollVote(
         poll_id=poll_id,
         option_id=option_id,
@@ -123,16 +135,7 @@ async def vote_poll(
 
     db.add(vote)
 
-    result = await db.execute(
-        select(PollOption).where(
-            PollOption.option_id == option_id
-        )
-    )
-
-    option = result.scalar_one_or_none()
-
-    if option:
-        option.votes_count += 1
+    option.votes_count += 1
 
     await db.commit()
 

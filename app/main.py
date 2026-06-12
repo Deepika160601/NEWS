@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi import FastAPI
 from fastapi import HTTPException, Request
@@ -48,6 +49,21 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+# ========================
+# CORS MIDDLEWARE
+# ========================
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # ========================
 # GLOBAL HTTP EXCEPTION HANDLER
 # ========================

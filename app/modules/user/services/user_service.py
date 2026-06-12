@@ -27,7 +27,9 @@ class UserService:
         name: str,
         email: str,
         mobile_number: str,
-        password: str
+        password: str,
+        latitude: float | None = None,
+        longitude: float | None = None
     ):
 
         existing_user = await UserRepository.get_user_by_email(
@@ -56,7 +58,9 @@ class UserService:
             name=name,
             email=email,
             mobile_number=mobile_number,
-            password_hash=hash_password(password)
+            password_hash=hash_password(password),
+            latitude=latitude,
+            longitude=longitude
         )
 
         created_user = await UserRepository.create_user(
@@ -72,6 +76,8 @@ class UserService:
                 "email": created_user.email,
                 "mobile_number": created_user.mobile_number,
                 "preferred_language": created_user.preferred_language,
+                "latitude": created_user.latitude,
+                "longitude": created_user.longitude,
                 "created_at": created_user.created_at
             }
         )
@@ -150,6 +156,8 @@ class UserService:
                 "email": user.email,
                 "mobile_number": user.mobile_number,
                 "preferred_language": user.preferred_language,
+                "latitude": user.latitude,
+                "longitude": user.longitude,
                 "created_at": user.created_at
             }
         )
@@ -184,5 +192,41 @@ class UserService:
             "Language updated successfully",
             {
                 "preferred_language": user.preferred_language
+            }
+        )
+
+    # =========================
+    # UPDATE LOCATION
+    # =========================
+    @staticmethod
+    async def update_location(
+        db: AsyncSession,
+        user_id: int,
+        latitude: float,
+        longitude: float
+    ):
+
+        user = await UserRepository.get_user_by_id(
+            db,
+            user_id
+        )
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+
+        user.latitude = latitude
+        user.longitude = longitude
+
+        await db.commit()
+        await db.refresh(user)
+
+        return success_response(
+            "Location updated successfully",
+            {
+                "latitude": user.latitude,
+                "longitude": user.longitude
             }
         )

@@ -4,7 +4,10 @@ from pydantic import (
     field_validator
 )
 
-from typing import Literal
+from typing import (
+    Literal,
+    Optional
+)
 
 
 # =========================
@@ -16,6 +19,9 @@ class UserRegisterRequest(BaseModel):
     mobile_number: str
     password: str
 
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+
     @field_validator("mobile_number")
     @classmethod
     def validate_mobile_number(
@@ -24,13 +30,11 @@ class UserRegisterRequest(BaseModel):
     ):
 
         if not value.isdigit():
-
             raise ValueError(
                 "Mobile number must contain only digits"
             )
 
         if len(value) != 10:
-
             raise ValueError(
                 "Mobile number must be exactly 10 digits"
             )
@@ -79,3 +83,11 @@ class LanguageUpdateRequest(BaseModel):
         "ta",
         "kn"
     ]
+
+
+# =========================
+# UPDATE LOCATION
+# =========================
+class LocationUpdateRequest(BaseModel):
+    latitude: float
+    longitude: float

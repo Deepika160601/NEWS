@@ -1,3 +1,5 @@
+
+
 from fastapi import (
     APIRouter,
     Depends
@@ -16,7 +18,8 @@ from app.core.security import (
 from app.modules.user.schemas.user_schema import (
     UserRegisterRequest,
     UserLoginRequest,
-    LanguageUpdateRequest
+    LanguageUpdateRequest,
+    LocationUpdateRequest
 )
 
 from app.modules.user.services.user_service import (
@@ -40,7 +43,9 @@ async def register_user(
         name=request.name,
         email=request.email,
         mobile_number=request.mobile_number,
-        password=request.password
+        password=request.password,
+        latitude=request.latitude,
+        longitude=request.longitude
     )
 
 
@@ -74,4 +79,22 @@ async def update_language(
         db,
         current_user["user_id"],
         request.preferred_language
+    )
+
+
+# =========================
+# UPDATE LOCATION
+# =========================
+@router.put("/location")
+async def update_location(
+    request: LocationUpdateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    return await UserService.update_location(
+        db,
+        current_user["user_id"],
+        request.latitude,
+        request.longitude
     )

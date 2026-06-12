@@ -9,6 +9,9 @@ from sqlalchemy.ext.asyncio import (
 
 from app.db.db import get_db
 
+from app.core.security import (
+    get_current_user
+)
 
 from app.modules.user.services.news_service import (
     get_latest_news_service,
@@ -23,11 +26,13 @@ router = APIRouter()
 # =========================
 @router.get("/")
 async def latest_news(
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
 
     return await get_latest_news_service(
-        db
+        db,
+        current_user["user_id"]
     )
 
 
@@ -37,10 +42,12 @@ async def latest_news(
 @router.get("/{news_id}")
 async def news_details(
     news_id: int,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
 ):
 
     return await get_news_by_id_service(
         db,
-        news_id
+        news_id,
+        current_user["user_id"]
     )

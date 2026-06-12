@@ -1,8 +1,13 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.models import News
+from app.models.models import (
+    News,
+    NewsTranslation
+)
+
 from datetime import datetime
+
 
 # =========================
 # CREATE NEWS
@@ -23,6 +28,35 @@ async def create_news(
     await db.refresh(news)
 
     return news
+
+
+# =========================
+# CREATE NEWS TRANSLATION
+# =========================
+async def create_news_translation(
+    db: AsyncSession,
+    news_id: int,
+    language: str,
+    translated_title: str,
+    translated_summary: str,
+    translated_content: str
+):
+
+    translation = NewsTranslation(
+        news_id=news_id,
+        language=language,
+        translated_title=translated_title,
+        translated_summary=translated_summary,
+        translated_content=translated_content
+    )
+
+    db.add(translation)
+
+    await db.commit()
+
+    await db.refresh(translation)
+
+    return translation
 
 
 # =========================
@@ -73,6 +107,7 @@ async def get_all_news(
     return result.scalars().all()
 
 
+# =========================
 # PUBLISH NEWS
 # =========================
 async def publish_news(

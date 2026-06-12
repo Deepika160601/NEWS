@@ -9,8 +9,13 @@ from sqlalchemy.ext.asyncio import (
 
 from app.utils.api_response import success_response
 
+from app.utils.translator import (
+    translate_text
+)
+
 from app.modules.admin.repositories.news_admin_repository import (
     create_news,
+    create_news_translation,
     get_all_news,
     get_news_by_id,
     get_news_by_title,
@@ -46,7 +51,6 @@ async def create_news_service(
         existing_news.content.strip().lower()
         == data.content.strip().lower()
     ):
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="News already exists"
@@ -60,6 +64,55 @@ async def create_news_service(
         db,
         news_data
     )
+
+    # =========================
+    # AUTO TRANSLATION
+    # =========================
+    if data.original_language == "en":
+
+        await create_news_translation(
+            db=db,
+            news_id=news.news_id,
+            language="te",
+            translated_title=translate_text(
+                data.title,
+                "en",
+                "te"
+            ),
+            translated_summary=translate_text(
+                data.summary or "",
+                "en",
+                "te"
+            ),
+            translated_content=translate_text(
+                data.content,
+                "en",
+                "te"
+            )
+        )
+
+    elif data.original_language == "te":
+
+        await create_news_translation(
+            db=db,
+            news_id=news.news_id,
+            language="en",
+            translated_title=translate_text(
+                data.title,
+                "te",
+                "en"
+            ),
+            translated_summary=translate_text(
+                data.summary or "",
+                "te",
+                "en"
+            ),
+            translated_content=translate_text(
+                data.content,
+                "te",
+                "en"
+            )
+        )
 
     return success_response(
         "News created successfully",
@@ -98,7 +151,6 @@ async def get_news_by_id_service(
     )
 
     if not news:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="News not found"
@@ -124,7 +176,6 @@ async def publish_news_service(
     )
 
     if not news:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="News not found"
@@ -153,6 +204,8 @@ async def publish_news_service(
         "News published successfully",
         published_news
     )
+
+
 # =========================
 # DELETE NEWS
 # =========================
@@ -167,7 +220,6 @@ async def delete_news_service(
     )
 
     if not news:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="News not found"

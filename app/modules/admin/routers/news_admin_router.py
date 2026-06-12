@@ -10,7 +10,6 @@ from sqlalchemy.ext.asyncio import (
 
 from app.db.db import get_db
 
-
 from app.core.security import (
     get_current_admin
 )
@@ -40,12 +39,27 @@ async def add_news(
     title: str = Form(...),
     content: str = Form(...),
     summary: str = Form(None),
+
+    original_language: str = Form("en"),
+
     category_id: int = Form(...),
-    location_id: int = Form(...),
+
+    news_type: str = Form(...),
+
+    state: str = Form(None),
+    district: str = Form(None),
+    mandal: str = Form(None),
+    city: str = Form(None),
+    village: str = Form(None),
+
     is_breaking: bool = Form(False),
+
     thumbnail_url: str = Form(None),
-    video_url: str = Form(None),   # <-- ADD THIS
+
+    video_url: str = Form(None),
+
     db: AsyncSession = Depends(get_db),
+
     current_admin=Depends(get_current_admin)
 ):
 
@@ -53,10 +67,23 @@ async def add_news(
         title=title,
         content=content,
         summary=summary,
+
+        original_language=original_language,
+
         category_id=category_id,
-        location_id=location_id,
+
+        news_type=news_type,
+
+        state=state,
+        district=district,
+        mandal=mandal,
+        city=city,
+        village=village,
+
         is_breaking=is_breaking,
+
         thumbnail_url=thumbnail_url,
+
         video_url=video_url
     )
 
