@@ -6,6 +6,9 @@ from fastapi import (
 from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
+from app.modules.user.repositories.user_repository import (
+    UserRepository
+)
 
 from app.utils.api_response import success_response
 
@@ -34,53 +37,32 @@ async def get_user_notifications_service(
         "Notifications fetched successfully",
         notifications
     )
-
-
 # =========================
-# GET UNREAD NOTIFICATIONS
+# UPDATE NOTIFICATION SETTINGS
 # =========================
-async def get_unread_notifications_service(
+async def update_notification_settings_service(
     db: AsyncSession,
-    user_id: int
+    user_id: int,
+    notification_enabled: bool
 ):
 
-    notifications = await get_unread_notifications(
+    user = await UserRepository.update_notification_settings(
         db,
-        user_id
+        user_id,
+        notification_enabled
     )
 
-    return success_response(
-        "Unread notifications fetched successfully",
-        notifications
-    )
-
-
-# =========================
-# MARK AS READ
-# =========================
-async def mark_notification_as_read_service(
-    db: AsyncSession,
-    notification_id: int
-):
-
-    notification = await get_notification_by_id(
-        db,
-        notification_id
-    )
-
-    if not notification:
-
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Notification not found"
+            detail="User not found"
         )
 
-    updated_notification = await mark_as_read(
-        db,
-        notification
+    return success_response(
+        "Notification settings updated successfully",
+        {
+            "notification_enabled": user.notification_enabled
+        }
     )
 
-    return success_response(
-        "Notification marked as read",
-        updated_notification
-    )
+

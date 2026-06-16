@@ -116,3 +116,49 @@ class UserRepository:
         )
 
         return result.scalars().all()
+
+    # =========================
+    # GET PROFILE
+    # =========================
+    @staticmethod
+    async def get_profile(
+        db: AsyncSession,
+        user_id: int
+    ):
+
+        result = await db.execute(
+            select(User).where(
+                User.user_id == user_id
+            )
+        )
+
+        return result.scalar_one_or_none()
+
+    # =========================
+    # UPDATE NOTIFICATION SETTINGS
+    # =========================
+    @staticmethod
+    async def update_notification_settings(
+        db: AsyncSession,
+        user_id: int,
+        notification_enabled: bool
+    ):
+
+        result = await db.execute(
+            select(User).where(
+                User.user_id == user_id
+            )
+        )
+
+        user = result.scalar_one_or_none()
+
+        if not user:
+            return None
+
+        user.notification_enabled = notification_enabled
+
+        await db.commit()
+
+        await db.refresh(user)
+
+        return user

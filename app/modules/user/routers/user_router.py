@@ -63,7 +63,19 @@ async def login_user(
         email=request.email,
         password=request.password
     )
+# =========================
+# GET PROFILE
+# =========================
+@router.get("/profile")
+async def get_profile(
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
 
+    return await UserService.get_profile(
+        db,
+        current_user["user_id"]
+    )
 
 # =========================
 # UPDATE LANGUAGE

@@ -1,7 +1,20 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.models import User
+from app.models.models import (
+    User,
+    Bookmark,
+    Like,
+    Comment,
+    PollVote,
+    Notification
+)
+
+from sqlalchemy import select, func
+
+from app.utils.location_helper import (
+    get_location_from_coordinates
+)
 
 from app.core.security import (
     hash_password,
@@ -81,8 +94,7 @@ class UserService:
                 "created_at": created_user.created_at
             }
         )
-
-    # =========================
+        # =========================
     # LOGIN USER
     # =========================
     @staticmethod
@@ -148,6 +160,70 @@ class UserService:
                 detail="User not found"
             )
 
+        location = None
+
+        if user.latitude and user.longitude:
+            location = await get_location_from_coordinates(
+                user.latitude,
+                user.longitude
+            )
+
+        # Total Bookmarks
+        bookmark_result = await db.execute(
+            select(func.count())
+            .select_from(Bookmark)
+            .where(
+                Bookmark.user_id == user.user_id
+            )
+        )
+
+        total_bookmarks = bookmark_result.scalar() or 0
+
+        # Total Likes
+        like_result = await db.execute(
+            select(func.count())
+            .select_from(Like)
+            .where(
+                Like.user_id == user.user_id
+            )
+        )
+
+        total_likes = like_result.scalar() or 0
+
+        # Total Comments
+        comment_result = await db.execute(
+            select(func.count())
+            .select_from(Comment)
+            .where(
+                Comment.user_id == user.user_id
+            )
+        )
+
+        total_comments = comment_result.scalar() or 0
+
+        # Total Poll Votes
+        poll_vote_result = await db.execute(
+            select(func.count())
+            .select_from(PollVote)
+            .where(
+                PollVote.user_id == user.user_id
+            )
+        )
+
+        total_poll_votes = poll_vote_result.scalar() or 0
+
+        # Unread Notifications
+        notification_result = await db.execute(
+            select(func.count())
+            .select_from(Notification)
+            .where(
+                Notification.user_id == user.user_id,
+                Notification.is_read == False
+            )
+        )
+
+        unread_notifications = notification_result.scalar() or 0
+
         return success_response(
             "Profile fetched successfully",
             {
@@ -155,10 +231,17 @@ class UserService:
                 "name": user.name,
                 "email": user.email,
                 "mobile_number": user.mobile_number,
+
+                "location": location,
+
                 "preferred_language": user.preferred_language,
-                "latitude": user.latitude,
-                "longitude": user.longitude,
-                "created_at": user.created_at
+                "notification_enabled": user.notification_enabled,
+
+                "total_bookmarks": total_bookmarks,
+                "total_likes": total_likes,
+                "total_comments": total_comments,
+                "total_poll_votes": total_poll_votes,
+                "unread_notifications": unread_notifications
             }
         )
 

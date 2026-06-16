@@ -3,12 +3,13 @@ from fastapi import (
     Depends
 )
 
+from pydantic import BaseModel
+
 from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
 
 from app.db.db import get_db
-
 
 from app.core.security import (
     get_current_user
@@ -16,11 +17,14 @@ from app.core.security import (
 
 from app.modules.user.services.notification_service import (
     get_user_notifications_service,
-    get_unread_notifications_service,
-    mark_notification_as_read_service
+    update_notification_settings_service
 )
 
 router = APIRouter()
+
+
+class NotificationSettingsRequest(BaseModel):
+    notification_enabled: bool
 
 
 # =========================
@@ -35,4 +39,21 @@ async def get_notifications(
     return await get_user_notifications_service(
         db,
         current_user["user_id"]
+    )
+
+
+# =========================
+# NOTIFICATION ON / OFF
+# =========================
+@router.put("/settings")
+async def update_notification_settings(
+    request: NotificationSettingsRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    return await update_notification_settings_service(
+        db,
+        current_user["user_id"],
+        request.notification_enabled
     )

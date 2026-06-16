@@ -15,26 +15,54 @@ from app.db.db import Base
  
 # ========================
 ## ========================
+# ========================
 # ADMINS
 # ========================
 class Admin(Base):
     __tablename__ = "admins"
- 
+
     admin_id = Column(Integer, primary_key=True)
+
     name = Column(String(100), nullable=False)
+
     email = Column(String(150), unique=True, nullable=False)
+
     password_hash = Column(Text, nullable=False)
+
     role = Column(String(50), default="admin")
- 
-    created_at = Column(TIMESTAMP, server_default=func.now())
- 
+
+    preferred_language = Column(
+        String(10),
+        default="en"
+    )
+
+    notification_enabled = Column(
+        Boolean,
+        default=True
+    )
+
+    latitude = Column(
+        Float,
+        nullable=True
+    )
+
+    longitude = Column(
+        Float,
+        nullable=True
+    )
+
+    created_at = Column(
+        TIMESTAMP,
+        server_default=func.now()
+    )
+
     # News created by admin
     created_news = relationship(
         "News",
         foreign_keys="News.author_id",
         back_populates="author"
     )
- 
+
     # News approved by admin
     approved_news = relationship(
         "News",
@@ -68,7 +96,10 @@ class User(Base):
         server_default=func.now(),
         onupdate=func.now()
     )
- 
+    notification_enabled = Column(
+    Boolean,
+    default=True
+)
     # Relationships
     comments = relationship(
         "Comment",
@@ -156,7 +187,10 @@ class News(Base):
         String(20),
         default="draft"
     )
- 
+    share_count = Column(
+    Integer,
+    default=0
+)
     is_breaking = Column(
         Boolean,
         default=False

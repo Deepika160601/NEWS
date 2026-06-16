@@ -183,7 +183,7 @@ async def get_current_admin(
         "role"
     )
 
-    if role != "super_admin":
+    if role != "admin":
 
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

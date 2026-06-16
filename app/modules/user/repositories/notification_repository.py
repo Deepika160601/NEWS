@@ -51,7 +51,18 @@ async def get_user_notifications(
         )
     )
 
-    return result.scalars().all()
+    notifications = result.scalars().all()
+
+    return [
+        {
+            "notification_id": notification.notification_id,
+            "title": notification.title,
+            "message": notification.message,
+            "is_read": notification.is_read,
+            "created_at": notification.created_at
+        }
+        for notification in notifications
+    ]
 
 
 # =========================

@@ -15,7 +15,8 @@ from app.utils.location_helper import (
 
 from app.modules.user.repositories.news_repository import (
     get_latest_news,
-    get_news_by_id
+    get_news_by_id,
+     share_news
 )
 
 from app.modules.user.repositories.user_repository import (
@@ -126,5 +127,29 @@ async def get_news_by_id_service(
 
     return success_response(
         "News details fetched successfully",
+        news
+    )
+# =========================
+# SHARE NEWS
+# =========================
+async def share_news_service(
+    db: AsyncSession,
+    news_id: int
+):
+
+    news = await share_news(
+        db,
+        news_id
+    )
+
+    if not news:
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="News not found"
+        )
+
+    return success_response(
+           "News shared successfully",
         news
     )

@@ -342,3 +342,34 @@ async def get_news_by_id(
         "published_at": news.published_at,
         "created_at": news.created_at
     }
+# =========================
+# SHARE NEWS
+# =========================
+async def share_news(
+    db: AsyncSession,
+    news_id: int
+):
+
+    result = await db.execute(
+        select(News).where(
+            News.news_id == news_id,
+            News.status == "published"
+        )
+    )
+
+    news = result.scalar_one_or_none()
+
+    if not news:
+        return None
+
+    news.share_count += 1
+
+    await db.commit()
+
+    await db.refresh(news)
+
+    return {
+        "news_id": news.news_id,
+        "title": news.title,
+        "share_count": news.share_count
+    }

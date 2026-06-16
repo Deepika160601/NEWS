@@ -15,7 +15,8 @@ from app.core.security import (
 
 from app.modules.user.services.news_service import (
     get_latest_news_service,
-    get_news_by_id_service
+    get_news_by_id_service,
+      share_news_service
 )
 
 router = APIRouter()
@@ -50,4 +51,17 @@ async def news_details(
         db,
         news_id,
         current_user["user_id"]
+    )
+# =========================
+# SHARE NEWS
+# =========================
+@router.get("/{news_id}/share")
+async def share_news_api(
+    news_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+
+    return await share_news_service(
+        db,
+        news_id
     )
